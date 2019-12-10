@@ -9,11 +9,8 @@ temperature/humidity/barometric pressure sensor service plugin for [Homebridge](
 * Archives results every hour to a google spreadsheet
 * Support the graphing feature of the Eve app for trends
 
-Uses [bme280-sensor](https://www.npmjs.com/package/bme280-sensor)
-
-# Build Instructions
-
-Detailed build instructions are available here. https://www.instructables.com/id/Connect-Your-RaspberryPI-to-the-BME280-Temperature/
+Forked from  [homebridge-280]().
+Uses [bme280](https://www.npmjs.com/package/bme280)
 
 ## Installation
 1.	Install Homebridge using `npm install -g homebridge`
