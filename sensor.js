@@ -1,6 +1,6 @@
 'use strict';
 
-const bme280_sensor = require('bme280-sensor');
+const bme280 = require('bme280');
 var debug = require('debug')('BME280');
 var logger = require("mcuiot-logger").logger;
 const moment = require('moment');
@@ -40,22 +40,14 @@ class BME280Plugin {
     if ('i2cAddress' in this.options) this.options.i2cAddress = parseInt(this.options.i2cAddress);
     this.log(`BME280 sensor options: ${JSON.stringify(this.options)}`);
 
-    try {
-      this.sensor = new bme280_sensor(this.options);
-    } catch (ex) {
-      this.log("BME280 initialization failed:", ex);
-    }
-
-    if (this.sensor)
-      this.sensor.init()
-      .then(result => {
-        this.log(`BME280 initialization succeeded`);
-        this.init = true;
-
-        this.devicePolling.bind(this);
-      })
-      .catch(err => this.log(`BME280 initialization failed: ${err} `));
-
+    bme280.open(this.options)
+        .then((sensor) => {
+          this.log(`BME280 initialization succeeded`);
+          this.sensor = sensor;
+          this.init = true;
+          this.devicePolling.bind(this);
+        })
+        .catch(err => this.log(`BME280 initialization failed: ${err} `));
 
     this.informationService = new Service.AccessoryInformation();
 
@@ -88,30 +80,30 @@ class BME280Plugin {
   }
 
   devicePolling() {
-    debug("Polling BME280");
+    //debug("Polling BME280");
     if (this.sensor) {
-      this.sensor.readSensorData()
+      this.sensor.read()
         .then(data => {
           this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
 
           this.loggingService.addEntry({
             time: moment().unix(),
-            temp: roundInt(data.temperature_C),
-            pressure: roundInt(data.pressure_hPa),
+            temp: roundInt(data.temperature),
+            pressure: roundInt(data.pressure),
             humidity: roundInt(data.humidity)
           });
 
           if (this.spreadsheetId) {
             this.log_event_counter = this.log_event_counter + 1;
             if (this.log_event_counter > 59) {
-              this.logger.storeBME(this.name, 0, roundInt(data.temperature_C), roundInt(data.humidity), roundInt(data.pressure_hPa));
+              this.logger.storeBME(this.name, 0, roundInt(data.temperature), roundInt(data.humidity), roundInt(data.pressure));
               this.log_event_counter = 0;
             }
           }
           this.temperatureService
-            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(data.temperature_C));
+            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(data.temperature));
           this.temperatureService
-            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, roundInt(data.pressure_hPa));
+            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, roundInt(data.pressure));
           this.humidityService
             .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(data.humidity));
 

@@ -10,7 +10,7 @@ temperature/humidity/barometric pressure sensor service plugin for [Homebridge](
 * Support the graphing feature of the Eve app for trends
 
 Forked from  [homebridge-280]().
-Uses [bme280](https://www.npmjs.com/package/bme280)
+to use [bme280](https://www.npmjs.com/package/bme280), which has a full implementation of the BME280 options. See the datasheet for all oversampling and filtering options.
 
 ## Installation
 1.	Install Homebridge using `npm install -g homebridge`
@@ -25,7 +25,7 @@ Connect the BME280 chip to the I2C bus
 * `name_temperature` (optional): descriptive name for the temperature sensor
 * `name_humidity` (optional): descriptive name for the humidity sensor
 * `refresh`: Optional, time interval for refreshing data in seconds, defaults to 60 seconds.
-* `options`: options for [bme280-sensor](https://www.npmjs.com/package/bme280-sensor)
+* `options`: options for [bme280](https://www.npmjs.com/package/bme280)
 * `spreadsheetId` ( optional ): Log data to a google sheet, this is part of the URL of your spreadsheet.  ie the spreadsheet ID in the URL https://docs.google.com/spreadsheets/d/abc1234567/edit#gid=0 is "abc1234567".
 
 If you get an I/O error, make sure the I2C address is correct (usually 0x76 or 0x77 depending on a jumper).
@@ -89,15 +89,10 @@ d. Click the Accept button.
 
 e. Copy the code you're given, paste it into the command-line prompt, and press Enter.
 
-## See also
-
-* [homebridge-ds18b20](https://www.npmjs.com/package/homebridge-ds18b20)
-* [homebridge-dht-sensor](https://www.npmjs.com/package/homebridge-dht-sensor)
-* [homebridge-dht](https://www.npmjs.com/package/homebridge-dht)
-
 ## Credits
 * NorthernMan54 - Barometric Pressure and Device Polling
 * simont77 - History Service
+
 
 ## License
 
