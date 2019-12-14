@@ -79,9 +79,17 @@ class BME280Plugin {
 
   }
 
+  async forceRead() {
+    await this.sensor.triggerForcedMeasurement();
+    await delay(this.sensor.maximumMeasurementTime());
+  }
+
   devicePolling() {
     //debug("Polling BME280");
     if (this.sensor) {
+      if (this.options.forceMode) {
+        forceRead();
+      }
       this.sensor.read()
         .then(data => {
           this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
