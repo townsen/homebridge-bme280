@@ -7,6 +7,9 @@ const moment = require('moment');
 var os = require("os");
 var hostname = os.hostname();
 
+const delay = millis => new Promise(resolve => setTimeout(resolve, millis));
+const fixed2 = number => (Math.round(number * 100) / 100).toFixed(2);
+
 let Service, Characteristic;
 var CustomCharacteristic;
 var FakeGatoHistoryService;
@@ -25,9 +28,11 @@ class BME280Plugin {
     this.log = log;
     this.name = config.name;
     this.name_temperature = config.name_temperature || this.name;
-    this.name_humidity = config.name_humidity || this.name;
-    this.refresh = config['refresh'] || 60; // Update every minute
+    this.name_humidity    = config.name_humidity || this.name;
+    this.refresh = config['refresh'] || 30; // Update every 30 seconds
     this.options = config.options || {};
+    if (!("forcedMode" in config.options)) this.options.forcedMode = true;       // default to forcedMode
+
     this.spreadsheetId = config['spreadsheetId'];
     if (this.spreadsheetId) {
       this.log_event_counter = 59;
@@ -36,8 +41,14 @@ class BME280Plugin {
 
     this.init = false;
     this.data = {};
-    if ('i2cBusNo' in this.options) this.options.i2cBusNo = parseInt(this.options.i2cBusNo);
+    if ('i2cBusNo' in this.options) this.options.i2cBusNo     = parseInt(this.options.i2cBusNo);
     if ('i2cAddress' in this.options) this.options.i2cAddress = parseInt(this.options.i2cAddress);
+
+    if ('humidityOversampling' in this.options) this.options.humidityOversampling       = eval("bme280."+this.options.humidityOversampling);
+    if ('pressureOversampling' in this.options) this.options.pressureOversampling       = eval("bme280."+this.options.pressureOversampling);
+    if ('temperatureOversampling' in this.options) this.options.temperatureOversampling = eval("bme280."+this.options.temperatureOversampling);
+    if ('filterCoefficient' in this.options) this.options.filterCoefficient             = eval("bme280."+this.options.filterCoefficient);
+    if ('standby' in this.options) this.options.standby                                 = eval("bme280."+this.options.standby);
     this.log(`BME280 sensor options: ${JSON.stringify(this.options)}`);
 
     bme280.open(this.options)
@@ -65,7 +76,6 @@ class BME280Plugin {
         minValue: -100,
         maxValue: 100
       });
-    //        .on('get', this.getCurrentTemperature.bind(this));
 
     this.temperatureService
       .addCharacteristic(CustomCharacteristic.AtmosphericPressureLevel);
@@ -76,44 +86,44 @@ class BME280Plugin {
 
     this.temperatureService.log = this.log;
     this.loggingService = new FakeGatoHistoryService("weather", this.temperatureService);
-
   }
 
-  async forceRead() {
+  async forcedRead() {
     await this.sensor.triggerForcedMeasurement();
-    await delay(this.sensor.maximumMeasurementTime());
+    await delay( 2* this.sensor.maximumMeasurementTime());
   }
 
   devicePolling() {
-    //debug("Polling BME280");
     if (this.sensor) {
-      if (this.options.forceMode) {
-        forceRead();
+      if (this.options.forcedMode) {
+        this.forcedRead();
       }
       this.sensor.read()
         .then(data => {
-          this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
+          this.log(`${fixed2(data.temperature)}°C, ` +
+                   `${fixed2(data.pressure)} hPa, ` +
+                   `${fixed2(data.humidity)}%`);
 
           this.loggingService.addEntry({
             time: moment().unix(),
-            temp: roundInt(data.temperature),
-            pressure: roundInt(data.pressure),
-            humidity: roundInt(data.humidity)
+            temp: fixed2(data.temperature),
+            pressure: fixed2(data.pressure),
+            humidity: fixed2(data.humidity)
           });
 
           if (this.spreadsheetId) {
             this.log_event_counter = this.log_event_counter + 1;
             if (this.log_event_counter > 59) {
-              this.logger.storeBME(this.name, 0, roundInt(data.temperature), roundInt(data.humidity), roundInt(data.pressure));
+              this.logger.storeBME(this.name, 0, fixed2(data.temperature), fixed2(data.humidity), fixed2(data.pressure));
               this.log_event_counter = 0;
             }
           }
           this.temperatureService
-            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(data.temperature));
+            .setCharacteristic(Characteristic.CurrentTemperature, fixed2(data.temperature));
           this.temperatureService
-            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, roundInt(data.pressure));
+            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, fixed2(data.pressure));
           this.humidityService
-            .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(data.humidity));
+            .setCharacteristic(Characteristic.CurrentRelativeHumidity, fixed2(data.humidity));
 
         })
         .catch(err => {
@@ -134,6 +144,3 @@ class BME280Plugin {
   }
 }
 
-function roundInt(string) {
-  return Math.round(parseFloat(string) * 10) / 10;
-}
