@@ -17,7 +17,12 @@ to use [bme280](https://www.npmjs.com/package/bme280), which has a full implemen
 2.	Install this plugin `npm install -g @iainfarq/homebridge-bme280`
 3.	Update your configuration file - see below for an example
 
-Connect the BME280 chip to the I2C bus
+(As of homebridge version 0.4.50, scoped packages like this one are not fully supported.  You need to edit this packages `package.json` file and change
+the "name" property from "@iainfarq/homebridge" to "homebridge", and then set a softlink inside the node_modules directory. )
+
+Use `ln -s @iainfarq/homebridge-bme280 homebridge-bme280` for best results..
+
+Follow the excellent directions in the [bme280](https://www.npmjs.com/package/bme280) package to connect the device to the I2C bus.
 
 ## Configuration
 * `accessory`: "BME280"
@@ -25,11 +30,13 @@ Connect the BME280 chip to the I2C bus
 * `name_temperature` (optional): descriptive name for the temperature sensor
 * `name_humidity` (optional): descriptive name for the humidity sensor
 * `refresh`: Optional, time interval for refreshing data in seconds, defaults to 60 seconds.
-* `options`: options for [bme280](https://www.npmjs.com/package/bme280)
+* `options`: options for [bme280](https://www.npmjs.com/package/bme280). Note that the 'forcedMode' option is set to true by default; this should better match
+any homebridge use - self heating is reduced, and the sensor is only active once per refresh cycle.
 
 If you get an I/O error, make sure the I2C address is correct (usually 0x76 or 0x77 depending on a jumper).
 
 Simple Configuration
+
 ```json
 {
   "bridge": {
@@ -93,7 +100,7 @@ This plugin creates two services: TemperatureSensor and HumiditySensor.
 
 * NorthernMan54 - Barometric Pressure and Device Polling
 * simont77 - History Service
-* fivedi - Comprehensive implementation of the BME280 interface
+* fivdi - Comprehensive implementation of the BME280 interface
 
 ## License
 

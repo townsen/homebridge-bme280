@@ -9,6 +9,7 @@ var hostname = os.hostname();
 
 const delay = millis => new Promise(resolve => setTimeout(resolve, millis));
 const fixed2 = number => (Math.round(number * 100) / 100).toFixed(2);
+const round1 = number => Math.round(number * 10) / 10;
 
 let Service, Characteristic;
 var CustomCharacteristic;
@@ -106,24 +107,24 @@ class BME280Plugin {
 
           this.loggingService.addEntry({
             time: moment().unix(),
-            temp: fixed2(data.temperature),
-            pressure: fixed2(data.pressure),
-            humidity: fixed2(data.humidity)
+            temp: round1(data.temperature),
+            pressure: round1(data.pressure),
+            humidity: round1(data.humidity)
           });
 
           if (this.spreadsheetId) {
             this.log_event_counter = this.log_event_counter + 1;
             if (this.log_event_counter > 59) {
-              this.logger.storeBME(this.name, 0, fixed2(data.temperature), fixed2(data.humidity), fixed2(data.pressure));
+              this.logger.storeBME(this.name, 0, round1(data.temperature), round1(data.humidity), round1(data.pressure));
               this.log_event_counter = 0;
             }
           }
           this.temperatureService
-            .setCharacteristic(Characteristic.CurrentTemperature, fixed2(data.temperature));
+            .setCharacteristic(Characteristic.CurrentTemperature, round1(data.temperature));
           this.temperatureService
-            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, fixed2(data.pressure));
+            .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, round1(data.pressure));
           this.humidityService
-            .setCharacteristic(Characteristic.CurrentRelativeHumidity, fixed2(data.humidity));
+            .setCharacteristic(Characteristic.CurrentRelativeHumidity, round1(data.humidity));
 
         })
         .catch(err => {
