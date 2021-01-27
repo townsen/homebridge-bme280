@@ -21,7 +21,7 @@ module.exports = (homebridge) => {
   CustomCharacteristic = require('./lib/CustomCharacteristic.js')(homebridge);
   FakeGatoHistoryService = require('fakegato-history')(homebridge);
 
-  homebridge.registerAccessory('homebridge-bme280', 'BME280', BME280Plugin);
+  homebridge.registerAccessory('@iainfarq/homebridge-bme280', 'BME280', BME280Plugin);
 };
 
 class BME280Plugin {

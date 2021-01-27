@@ -3,24 +3,19 @@
 [Bosch BME280](https://www.bosch-sensortec.com/bst/products/all_products/bme280)
 temperature/humidity/barometric pressure sensor service plugin for [Homebridge](https://github.com/nfarina/homebridge).
 
-[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-bme280.svg?style=flat)](https://npmjs.org/package/homebridge-bme280)
+[![NPM Downloads](https://img.shields.io/npm/dm/@iainfarq/homebridge-bme280.svg?style=flat)](https://npmjs.org/package/@iainfarq/homebridge-bme280)
 
 * Display of temperature, humidity and Barometric Pressure from a BME280 connected to a RaspberryPI.
 * Archives results every hour to a google spreadsheet
 * Support the graphing feature of the Eve app for trends
 
-Forked from  [homebridge-280]().
+Forked from  [homebridge-280](https://www.npmjs.com/package/homebridge-bme280)
 to use [bme280](https://www.npmjs.com/package/bme280), which has a full implementation of the BME280 options. See the datasheet for all oversampling and filtering options.
 
 ## Installation
 1.	Install Homebridge using `npm install -g homebridge`
 2.	Install this plugin `npm install -g @iainfarq/homebridge-bme280`
 3.	Update your configuration file - see below for an example
-
-(As of homebridge version 0.4.50, scoped packages like this one are not fully supported.  You need to edit this packages `package.json` file and change
-the "name" property from "@iainfarq/homebridge" to "homebridge", and then set a softlink inside the node_modules directory. )
-
-Use `ln -s @iainfarq/homebridge-bme280 homebridge-bme280` for best results..
 
 Follow the excellent directions in the [bme280](https://www.npmjs.com/package/bme280) package to connect the device to the I2C bus.
 
@@ -29,7 +24,7 @@ Follow the excellent directions in the [bme280](https://www.npmjs.com/package/bm
 * `name`: descriptive name
 * `name_temperature` (optional): descriptive name for the temperature sensor
 * `name_humidity` (optional): descriptive name for the humidity sensor
-* `refresh`: Optional, time interval for refreshing data in seconds, defaults to 60 seconds.
+* `refresh`: Optional, time interval for refreshing data in seconds, defaults to 30 seconds.
 * `options`: options for [bme280](https://www.npmjs.com/package/bme280). Note that the 'forcedMode' option is set to true by default; this should better match
 any homebridge use - self heating is reduced, and the sensor is only active once per refresh cycle.
 
@@ -53,7 +48,7 @@ Simple Configuration
       "name_humidity": "Humidity",
       "options": {
         "i2cBusNo": 1,
-        "i2cAddress": "0x77",
+        "i2cAddress": "0x77"
       }
     }
   ],
