@@ -86,7 +86,11 @@ class BME280Plugin {
     setInterval(this.devicePolling.bind(this), this.refresh * 1000);
 
     this.temperatureService.log = this.log;
-    this.loggingService = new FakeGatoHistoryService("weather", this.temperatureService);
+    this.loggingService = new FakeGatoHistoryService("weather", this.temperatureService, {
+	size:14400, 				// optional - default is 4032
+	storage:'fs',
+	path:'/srv/homebridge/'  // if empty use the -U homebridge option if present, or .homebridge in the user's home folder
+      });
   }
 
   async forcedRead() {
