@@ -66,7 +66,7 @@ class BME280Plugin {
     this.informationService
       .setCharacteristic(Characteristic.Manufacturer, "Bosch")
       .setCharacteristic(Characteristic.Model, "RPI-BME280")
-      .setCharacteristic(Characteristic.SerialNumber, hostname + "-" + hostname)
+      .setCharacteristic(Characteristic.SerialNumber, hostname + "-" + this.name)
       .setCharacteristic(Characteristic.FirmwareRevision, require('./package.json').version);
 
     this.temperatureService = new Service.TemperatureSensor(this.name_temperature);
