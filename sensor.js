@@ -39,6 +39,19 @@ class BME280Plugin {
       this.log_event_counter = 59;
       this.logger = new logger(this.spreadsheetId);
     }
+    let servicename = `${hostname}-${this.name}`;
+    if (config['recordpath']) {
+      this.recording = {
+        size: 14400, // default is 4032
+        storage: 'fs',
+        path: config['recordpath']
+      }
+      debug(`Recording to file: ${config['recordpath']}/${servicename}`);
+    }
+    else {
+      this.recording = {};
+      debug("Not Recording");
+    }
 
     this.init = false;
     this.data = {};
@@ -66,7 +79,7 @@ class BME280Plugin {
     this.informationService
       .setCharacteristic(Characteristic.Manufacturer, "Bosch")
       .setCharacteristic(Characteristic.Model, "RPI-BME280")
-      .setCharacteristic(Characteristic.SerialNumber, hostname + "-" + this.name)
+      .setCharacteristic(Characteristic.SerialNumber, servicename)
       .setCharacteristic(Characteristic.FirmwareRevision, require('./package.json').version);
 
     this.temperatureService = new Service.TemperatureSensor(this.name_temperature);
@@ -86,11 +99,7 @@ class BME280Plugin {
     setInterval(this.devicePolling.bind(this), this.refresh * 1000);
 
     this.temperatureService.log = this.log;
-    this.loggingService = new FakeGatoHistoryService("weather", this.temperatureService, {
-	size:14400, 				// optional - default is 4032
-	storage:'fs',
-	path:'/srv/homebridge/'  // if empty use the -U homebridge option if present, or .homebridge in the user's home folder
-      });
+    this.loggingService = new FakeGatoHistoryService("weather", this.temperatureService, this.recording);
   }
 
   async forcedRead() {
