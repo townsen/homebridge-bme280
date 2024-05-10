@@ -1,6 +1,6 @@
 {
   "name": "@townsen/homebridge-bme280",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "BME280 temperature/humidity/pressure sensor bridge for Homebridge: https://github.com/nfarina/homebridge\"",
   "main": "sensor.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/iainfarq/homebridge-bme280.git"
+    "url": "git://github.com/townsen/homebridge-bme280.git"
   },
   "keywords": [
     "homebridge-plugin",
@@ -37,6 +37,8 @@
     "fakegato-history": ">=0.5.6"
   },
   "directories": {
+    "example": "examples",
     "lib": "lib"
-  }
+  },
+  "devDependencies": {}
 }
